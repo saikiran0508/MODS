@@ -22,4 +22,27 @@ QUIT;
 
 This code performs two merges. The first merge combines the first and second datasets based on `ip_id` to attach the `CIN`. Then, it merges this result with the third dataset based on `ip_id` to attach any missing `ref_id`.
 
-Adjust the table names (`dataset_1`, `dataset_2`, `dataset_3`) and column names to match your actual dataset structure. This process should help you combine the information from all three datasets into one, linking them using the common identifiers (`ip_id` and `ref_id`).
+Adjust the table names (`dataset_1`, `dataset_2`, `dataset_3`) and column names to match your actual dataset structure. This process should help you combine the information from all three datasets into one, linking them using the common identifiers (`ip_id` and `ref_id`
+Understood! If you only want to add the `CIN` and `ref_id` columns without retaining any additional columns from the intermediate steps, you can modify the merging code to select only the required columns in the final result. Here's an updated version:
+
+```sas
+/* Merge the first and second datasets to get CIN */
+PROC SQL;
+    CREATE TABLE merged_1_2 AS
+    SELECT A.ip_id, A.ref_id, A.staff_id, A.Queue_code, A.Queue_from, A.cost_code, A.event_timestamp,
+           B.CIN
+    FROM dataset_1 A
+    LEFT JOIN dataset_2 B ON A.ip_id = B.ip_id;
+QUIT;
+
+/* Merge the result with the third dataset to get missing ref_id */
+PROC SQL;
+    CREATE TABLE final_merged AS
+    SELECT A.ip_id, A.ref_id, A.staff_id, A.Queue_code, A.Queue_from, A.cost_code, A.event_timestamp,
+           C.ref_id AS final_ref_id, B.CIN AS final_CIN
+    FROM merged_1_2 A
+    LEFT JOIN dataset_3 C ON A.ip_id = C.ip_id;
+QUIT;
+```
+
+This updated code selects only the required columns (`ip_id`, `ref_id`, `staff_id`, `Queue_code`, `Queue_from`, `cost_code`, `event_timestamp`) from the initial datasets and attaches the `CIN` and `ref_id` columns from the respective merges. Adjust the column names as per your dataset structure..
