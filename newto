@@ -1,0 +1,25 @@
+Certainly! To merge these three SAS datasets and attach the `CIN` from the second dataset to the first dataset based on the `ip_id`, you can perform a series of merges using the common keys (`ip_id` and `ref_id`). 
+
+Here's an example of how you can merge these datasets:
+
+```sas
+/* Merge the first and second datasets to get CIN */
+PROC SQL;
+    CREATE TABLE merged_1_2 AS
+    SELECT A.*, B.CIN
+    FROM dataset_1 A
+    LEFT JOIN dataset_2 B ON A.ip_id = B.ip_id;
+QUIT;
+
+/* Merge the result with the third dataset to get missing ref_id */
+PROC SQL;
+    CREATE TABLE final_merged AS
+    SELECT A.*, C.ref_id
+    FROM merged_1_2 A
+    LEFT JOIN dataset_3 C ON A.ip_id = C.ip_id;
+QUIT;
+```
+
+This code performs two merges. The first merge combines the first and second datasets based on `ip_id` to attach the `CIN`. Then, it merges this result with the third dataset based on `ip_id` to attach any missing `ref_id`.
+
+Adjust the table names (`dataset_1`, `dataset_2`, `dataset_3`) and column names to match your actual dataset structure. This process should help you combine the information from all three datasets into one, linking them using the common identifiers (`ip_id` and `ref_id`).
